@@ -1,0 +1,16 @@
+# Runtime uploads (keep directory config only)
+uploads/*
+!uploads/.htaccess
+!uploads/.gitkeep
+
+# Dependencies and local configuration
+/vendor/
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

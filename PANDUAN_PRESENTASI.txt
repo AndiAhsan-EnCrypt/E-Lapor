@@ -1,0 +1,74 @@
+PANDUAN PRESENTASI UAS - E-LAPOR MASYARAKAT
+============================================
+
+1. KONSEP
+Website dinamis pengaduan masyarakat. Warga mengirim tiket (pengaduan) beserta foto;
+admin menindaklanjuti dengan mengubah status & memberi komentar.
+
+2. ALUR DEMO (saat presentasi)
+a. Buka Beranda (index.php) -> tunjuk statistik & tabel pengaduan terbaru.
+b. Login sebagai warga (budi@contoh.id) -> Dashboard Saya.
+c. Klik "Buat Pengaduan" -> isi form + upload foto -> kirim.
+d. Login sebagai admin (admin@elapor.id) -> Dashboard Admin (statistik).
+e. Kelola Tiket -> pilih tiket -> ubah status & komentar.
+f. Kembali ke akun warga -> Detail tiket -> lihat status & komentar.
+
+3. MAPPING UI -> KODE (untuk dijelaskan saat tunjuk elemen)
+
+NAVBAR (tombol menu atas)
+- File: includes/header.php (baris <nav class="navbar"...>)
+- Style: assets/css/style.css (rule .navbar-brand)
+- Logika login/logout: includes/auth.php (is_logged_in, is_admin)
+
+TOMBOL "BUAT PENGADUAN"
+- Tampilan: Bootstrap class "btn btn-primary" di user/dashboard.php
+- Aksi: link ke user/buat_tiket.php
+- Proses simpan: user/buat_tiket.php (INSERT INTO tickets) + upload file (move_uploaded_file)
+
+FORM PENGADUAN (input judul, deskripsi, kategori, prioritas, lampiran)
+- HTML form: user/buat_tiket.php
+- Validasi: atribut required + pengecekan PHP di atas
+- Upload: $_FILES['lampiran'] + move_uploaded_file ke folder uploads/
+
+TABEL DATA (daftar tiket)
+- HTML table: user/dashboard.php & admin/kelola_tiket.php
+- Data dari DB: query SELECT ... JOIN categories
+- Badge status/warna: assets/css/style.css (rule .badge-status-* dan .badge-prio-*)
+
+TOMBOL "UBAH STATUS" (admin)
+- Form: admin/tiket_detail.php (select status + button name="ubah_status")
+- Proses: UPDATE tickets SET status=? WHERE id=?
+- Komentar: INSERT INTO ticket_comments
+
+DASHBOARD STATISTIK (angka-angka)
+- Query COUNT: admin/dashboard.php (per status & per kategori)
+- Tampilan angka: class .stat-card .num di assets/css/style.css
+
+PREVIEW FOTO SEBELUM UPLOAD
+- JavaScript: assets/js/app.js (FileReader -> previewImg)
+
+4. DATABASE
+- Tabel: users, categories, tickets, ticket_comments, ticket_attachments
+- Relasi: tickets.user_id -> users.id; tickets.category_id -> categories.id
+- Password disimpan dengan password_hash() dan diverifikasi password_verify()
+
+5. KEAMANAN DASAR
+- Prepared statements (mysqli_prepare) mencegah SQL injection
+- htmlspecialchars() saat menampilkan data (fungsi h())
+- Session untuk autentikasi (includes/auth.php)
+
+6. PERTANYAAN YANG MUNGKIN DITANYAKAN DOSEN
+Q: Apa yang membuat website ini "dinamis"?
+A: Data (pengaduan, komentar, status) disimpan di MySQL dan ditampilkan real-time; tidak statis.
+
+Q: Bagaimana warga & admin dibedakan?
+A: Kolom role di tabel users ('warga'/'admin'); includes/auth.php mengecek is_admin().
+
+Q: Bagaimana upload foto bekerja?
+A: Form enctype="multipart/form-data"; PHP memproses $_FILES, validasi ekstensi, move_uploaded_file ke /uploads, path disimpan di ticket_attachments.
+
+Q: Bagaimana status pengaduan berubah?
+A: Admin memilih status di form -> UPDATE tickets SET status.
+
+Q: Bisakah diakses orang lain?
+A: Ya, deploy ke hosting PHP+MySQL (InfinityFree/000webhost), upload file + import database.sql, sesuaikan koneksi.
