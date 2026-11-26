@@ -1,0 +1,10 @@
+services:
+  db:
+    image: mysql:8
+    environment: {MYSQL_ROOT_PASSWORD: pw}
+    volumes: ["./database.sql:/docker-entrypoint-initdb.d/1.sql"]
+  web:
+    build: .
+    ports: ["8080:8080"]
+    environment: {MYSQLHOST: db, MYSQLUSER: root, MYSQLPASSWORD: pw, MYSQLDATABASE: e_lapor, PORT: "8080"}
+    depends_on: [db]
